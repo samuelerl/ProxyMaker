@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-# ProxyMaker: manage a local SSH tunnel to a remote kubectl proxy.
-
 set -euo pipefail
 
 LOCAL_PORT=${LOCAL_PORT:-8080}
@@ -12,7 +10,7 @@ Usage: $(basename "$0") <remote_host>
 
 Creates a kubectl API proxy on <remote_host> and forwards it locally.
 
-Environment variables:
+Env vars:
   LOCAL_PORT   Local port to bind the SSH tunnel (default: ${LOCAL_PORT}).
   REMOTE_PORT  Remote kubectl proxy port (default: ${REMOTE_PORT}).
 
@@ -45,9 +43,9 @@ if [[ -n "$remote_pids" ]]; then
 fi
 
 log "Starting kubectl proxy on ${server} (port ${REMOTE_PORT})"
-ssh "$server" "nohup kubectl proxy --port=${REMOTE_PORT} --disable-filter=true >/dev/null 2>&1 &" -q
+ssh -q "$server" "nohup kubectl proxy --port=${REMOTE_PORT} --disable-filter=true >/dev/null 2>&1 &"
 
 log "Starting SSH tunnel to ${server} (local ${LOCAL_PORT} -> remote ${REMOTE_PORT})"
-ssh -f -L "${LOCAL_PORT}:127.0.0.1:${REMOTE_PORT}" "$server" -q -N
+ssh -f -q -L "${LOCAL_PORT}:127.0.0.1:${REMOTE_PORT}" "$server" -N
 
 log "Tunnel ready: http://127.0.0.1:${LOCAL_PORT}"
