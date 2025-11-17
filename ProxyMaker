@@ -1,0 +1,19 @@
+#set -x
+server=$1
+if [ -z "$1" ]
+   then
+    echo "Please provide server name"
+    exit 1
+fi
+pid=$(ps aux |grep -i "[s]sh -L 8080:127.0.0.1:8888" |awk '{print $2}')
+if [ ! -z "$pid" ]
+   then
+    kill -9 $pid
+fi
+pid_server=$(ssh $server "ps aux |grep 'kubectl proxy --port=8888 --disable-filter=true' |grep -v grep |awk '{print \$2}'")
+if [ ! -z "$pid_server" ]
+    then
+    ssh $server "kill -9 $pid_server"
+fi
+ssh $server "kubectl proxy --port=8888 --disable-filter=true > /dev/null 2>&1 &" -q 2> /dev/null
+ssh -L 8080:127.0.0.1:8888 $server -qN &
