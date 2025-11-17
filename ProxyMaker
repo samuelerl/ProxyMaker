@@ -36,7 +36,7 @@ if pids=$(pgrep -f "$tunnel_pattern" 2>/dev/null); then
     kill -9 $pids
 fi
 
-remote_pids=$(ssh "$server" "pgrep -f 'kubectl proxy --port=${REMOTE_PORT} --disable-filter=true'" 2>/dev/null || true)
+remote_pids=$(ssh -q "$server" "pgrep -f 'kubectl proxy --port=${REMOTE_PORT} --disable-filter=true'" 2>/dev/null || true)
 if [[ -n "$remote_pids" ]]; then
     log "Stopping remote kubectl proxy on ${server}: $remote_pids"
     ssh "$server" "kill -9 $remote_pids"
